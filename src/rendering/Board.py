@@ -82,16 +82,19 @@ class Board:
             0 for empty, 1 for black piece, or 2 for white piece.
 
         Raises:
-            IndexError: If coordinates are out of bounds.
+            ValueError: If coordinates are out of bounds.
         """
-        raise NotImplementedError
+        if 0 <= x < self.size() and 0 <= y < self.size():
+            return self._pieces[x][y]
+        else:
+            raise ValueError("coordinates are out of bounds")
 
     def clear(self) -> None:
         """Reset the entire board to empty state.
 
         All positions will be set to 0.
         """
-        raise NotImplementedError
+        self._pieces = [[0 for _ in range(self.size())] for _ in range(self.size())]
 
     def add_piece(self, x: int, y: int, piece: int) -> None:
         """Place a piece at specified coordinates.
@@ -104,7 +107,10 @@ class Board:
         Raises:
             ValueError: If coordinates are invalid or position is occupied.
         """
-        raise NotImplementedError
+        if 0 <= x < self.size() and 0 <= y < self.size() and self.piece(x, y) == 0 and (piece == 1 or piece == 2):
+            self._pieces[x][y] = piece
+        else:
+            raise ValueError("coordinates are invalid or position is occupied or piece is illegal")
 
     def __str__(self) -> str:
         """Generate human-readable string representation.
@@ -117,6 +123,12 @@ class Board:
         Returns:
             Multi-line string visualizing the board state.
         """
-        raise NotImplementedError
+        return '|\n'.join(
+            ''.join(
+                '| * ' if cell == 1 else '| 0 ' if cell == 2 else '|   '
+                for cell in row
+            )
+            for row in self._pieces
+        )
 
 

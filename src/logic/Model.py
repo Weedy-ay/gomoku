@@ -4,6 +4,8 @@ from src.rendering.Board import Board
 class Model:
     def __init__(self, size: int = 15):
         self._board = Board(size)
+        self.game_over = False
+        self.winner = 0
 
     def piece(self, x: int, y: int) -> int:
         """Return the current piece at (x, y).
@@ -16,9 +18,9 @@ class Model:
             0 for empty, 1 for black piece, or 2 for white piece.
 
         Raises:
-            IndexError: if coordinates are out of bounds.
+            ValueError: if coordinates are out of bounds.
         """
-        raise NotImplementedError
+        return self._board.piece(x, y)
 
     def size(self):
         """Get the edge length of the board.
@@ -26,17 +28,18 @@ class Model:
         Returns:
             The board's size as a positive integer.
         """
-        raise NotImplementedError
+        return self._board.size()
 
     def clear(self):
         """Reset the entire board to empty state.
 
         All positions will be set to 0.
         """
-        raise NotImplementedError
+        self._board.clear()
 
     def add_piece(self, x: int, y: int, piece: int) -> None:
-        """Place a piece at specified coordinates.
+        """If the game is not over, place a piece at specified coordinates.
+        Then check whether there is a winner and whether the game is over.
 
         Args:
             x: X-coordinate (0-based), 0 <= x < size
@@ -46,25 +49,30 @@ class Model:
         Raises:
             ValueError: If coordinates are invalid or position is occupied.
         """
-        raise NotImplementedError
+        if not self.game_over:
+            self._board.add_piece(x, y, piece)
+            self.winner = self.is_winner(x, y)
+            self.empty_space_exists()
 
-    def game_over(self):
-        """Return Ture if the game is over (there is a winner or
-        there are no more empty places on the board).
-        """
-        raise NotImplementedError
-
-    def get_board(self):
+    def get_board(self) -> Board:
         """Return the current board."""
-        raise NotImplementedError
+        return self._board
 
     def empty_space_exists(self):
-        """Return true if there is at least one empty space on the board."""
-        raise NotImplementedError
+        """Return true and change the attribute 'game_over' to True
+        if there is at least one empty space on the board.
+        """
+        for i in range(self.size()):
+            for j in range(self.size()):
+                if self.piece(i, j) == 0:
+                    return True
+        self.game_over = True
+        return False
 
-    def winner(self):
-        """Return 0 if there is no winner.
+    def is_winner(self, x: int, y: int):
+        """Return 0 if there is no winner at coordinate (x, y).
         Otherwise, return 1 for the winning of black, or 2 for the winning of white.
+        Then change the attribute 'game_over' to True.
         """
         raise NotImplementedError
 
