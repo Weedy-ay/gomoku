@@ -1,3 +1,6 @@
+import copy
+
+
 class Board:
     """Represents a game board for piece placement.
 
@@ -5,17 +8,60 @@ class Board:
     occupied by black pieces (1), white pieces (2), or be empty (0).
 
     Attributes:
-        size: The edge length of the square board, defaulting to 15.
+        _size: The edge length of the square board, defaulting to 15.
     """
 
-    def __init__(self, size: int = 15):
-        """Initialize a square board with all positions empty.
+    def __init__(self, size: int = 15, given_board: bool = False, board: list = None):
+        """Initialize a Gomoku board with specified size or a provided board configuration.
+
+        The board is represented by a 2D list where:
+        - 0 represents an empty position
+        - 1 represents a black stone
+        - 2 represents a white stone
 
         Args:
-            size: Edge length of the board. Must be a positive integer.
+            size (int, optional): Edge length of the square board. Must be a positive integer.
+                Defaults to 15. Ignored if `given_board` is True.
+            given_board (bool, optional): Flag to indicate whether to use a custom board.
+                When True, the `board` parameter must be provided. Defaults to False.
+            board (list, optional): A square 2D list representing a pre-configured board.
+                Required when `given_board` is True. Each row must have the same length as
+                the board size. The provided board will be deep copied to prevent external
+                modifications. This is primarily for debugging purposes.
+
+        Raises:
+            ValueError: If provided parameters are invalid:
+                - `size` is not a positive integer (when using default initialization)
+                - `board` is not a square 2D list (when using custom board)
+                - Row/column lengths mismatch in custom board
+                - Invalid stone values (not 0, 1, or 2) in custom board
+
+        Note:
+            When using a custom board (`given_board=True`):
+            - The board is deep copied to ensure isolation from external modifications
+            - The first dimension represents rows (vertical axis), the second represents columns (horizontal axis)
         """
-        self._size = size
-        self._pieces = [[0 for _ in range(size)] for _ in range(size)]  # 0=empty, 1=black, 2=white
+        if given_board:
+            # Validate custom board structure
+            if not board or not all(len(row) == len(board) for row in board):
+                raise ValueError("Invalid custom board - must be a square 2D list")
+
+            # Validate stone values
+            valid_values = {0, 1, 2}
+            for row in board:
+                for val in row:
+                    if val not in valid_values:
+                        raise ValueError(f"Invalid stone value {val}. Must be 0, 1, or 2")
+
+            self._size = len(board)
+            self._pieces = copy.deepcopy(board)
+        else:
+            # Validate size parameter
+            if not isinstance(size, int) or size < 1:
+                raise ValueError(f"Invalid board size: {size}. Must be a positive integer")
+
+            self._size = size
+            self._pieces = [[0 for _ in range(size)] for _ in range(size)]
 
     def size(self) -> int:
         """Get the edge length of the board.

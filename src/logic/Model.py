@@ -68,3 +68,15 @@ class Model:
         """
         raise NotImplementedError
 
+    def __str__(self):
+        """Generate human-readable string representation of the board.
+
+        Example format:
+            - '*' for black pieces (1)
+            - '0' for white pieces (2)
+            - ' ' for empty positions (0)
+
+        Returns:
+            Multi-line string visualizing the board state.
+        """
+        return self._board.__str__()
