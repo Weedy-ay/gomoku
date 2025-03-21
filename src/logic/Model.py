@@ -54,7 +54,10 @@ class Model:
         if not self.game_over:
             self._board.add_piece(x, y, piece)
             self.winner = self.is_winner(x, y)
-            self.empty_space_exists()
+            if self.winner != 0:
+                self.game_over = True
+            else:
+                self.empty_space_exists()
 
     def get_board(self) -> Board:
         """Return the current board."""
