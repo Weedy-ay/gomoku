@@ -98,7 +98,7 @@ class Model:
                     for j in range(PIECES_TO_WIN_IN_LINE)):
                     return curr_piece
 
-        raise 0
+        return 0
 
     def __str__(self):
         """Generate human-readable string representation of the board.
