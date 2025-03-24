@@ -50,6 +50,8 @@ class GomokuGUI:
         # 绘制棋盘
         self.draw_board(padding)
 
+        self.last_move_highlight = None  # 新增：存储高亮框的引用
+
     def draw_board(self, padding):
         """绘制棋盘网格"""
         size = self.model.size()
@@ -123,22 +125,37 @@ class GomokuGUI:
             messagebox.showerror("错误", "无效的位置")
 
     def draw_piece(self, x, y):
-        """在画布上绘制棋子"""
+        """绘制棋子并添加高亮框"""
         padding = 20
-        piece = self.model.piece(x, y)
-        color = "black" if piece == 1 else "white"
+        center_x = padding + x * self.cell_size
+        center_y = padding + y * self.cell_size
+        offset = self.cell_size // 2.5
 
-        # 计算绘制坐标
-        x0 = padding + x * self.cell_size - self.cell_size // 2.5
-        y0 = padding + y * self.cell_size - self.cell_size // 2.5
-        x1 = x0 + self.cell_size // 1.25
-        y1 = y0 + self.cell_size // 1.25
-
-        self.canvas.create_oval(
-            x0, y0, x1, y1,
-            fill=color,
-            outline="black" if color == "white" else None
+        # 先绘制棋子
+        piece_id = self.canvas.create_oval(
+            center_x - offset, center_y - offset,
+            center_x + offset, center_y + offset,
+            fill="black" if self.current_player == 1 else "white",
+            outline="gray" if self.current_player == 2 else None,
+            width=2
         )
+
+        # 删除旧的高亮框
+        if self.last_move_highlight:
+            self.canvas.delete(self.last_move_highlight)
+
+        # 添加新棋子高亮框（比棋子大2像素）
+        hl_offset = offset + 2
+        self.last_move_highlight = self.canvas.create_rectangle(
+            center_x - hl_offset, center_y - hl_offset,
+            center_x + hl_offset, center_y + hl_offset,
+            outline="#FF4444",  # 亮红色
+            width=2,
+            tags="highlight"
+        )
+
+        # 保证高亮框在棋子下方
+        self.canvas.tag_lower(self.last_move_highlight, piece_id)
 
     def update_status(self):
         """更新状态栏"""
@@ -154,6 +171,10 @@ class GomokuGUI:
         self.canvas.delete("all")
         self.draw_board(20)
         self.update_status()
+
+        if self.last_move_highlight:
+            self.canvas.delete(self.last_move_highlight)
+            self.last_move_highlight = None
 
 
 def main():
